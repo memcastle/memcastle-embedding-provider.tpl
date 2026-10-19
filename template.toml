@@ -1,0 +1,27 @@
+name = "memcastle-embedding-provider"
+description = "A standalone embedding-provider module for a MemCastle plugin"
+strict = true
+
+[questions.module_name]
+type = "string"
+prompt = "Stable embedding module ID"
+pattern = "^[a-z0-9]+(-[a-z0-9]+)*$"
+message = "use lowercase words, numbers and hyphens"
+
+[questions.module_description]
+type = "string"
+prompt = "What model does this provider expose?"
+default = "An example embedding provider"
+
+[questions.module_path]
+type = "string"
+prompt = "Directory for the embedding module (relative to this project)"
+default = "."
+
+[questions.version]
+type = "string"
+prompt = "Module version"
+default = "0.1.0"
+
+[computed]
+crate_name = "{{ module_name | replace('-', '_') }}"

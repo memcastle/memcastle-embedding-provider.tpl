@@ -1,0 +1,9 @@
+[answers]
+module_name = "vector-one"
+module_path = "embeddings/vector-one"
+
+[expect]
+files = ["embeddings/vector-one/Cargo.toml", "embeddings/vector-one/src/lib.rs", "embeddings/vector-one/wit/memcastle-embedding.wit", "embeddings/vector-one/memcastle-embedding.toml"]
+
+[expect.contains]
+"embeddings/vector-one/memcastle-embedding.toml" = ['id = "vector-one"']

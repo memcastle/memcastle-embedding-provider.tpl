@@ -1,0 +1,45 @@
+//! Replace the deterministic example with real model inference before publication.
+
+wit_bindgen::generate!({ path: "wit", world: "embedding-provider" });
+
+use exports::memcastle::embedding::provider::{Guest, Model};
+
+struct Provider;
+
+impl Guest for Provider {
+    fn models() -> Vec<Model> {
+        vec![Model {
+            id: "sample".into(),
+            dimensions: vec![3],
+        }]
+    }
+
+    fn embed(
+        model: String,
+        dimensions: u32,
+        _settings: String,
+        texts: Vec<String>,
+    ) -> Result<Vec<Vec<f32>>, String> {
+        if model != "sample" || dimensions != 3 {
+            return Err("unsupported model or dimension".into());
+        }
+        // A deterministic example exercises the contract without granting network or credentials.
+        Ok(texts
+            .iter()
+            .map(|text| vec![text.len() as f32, 0.0, 1.0])
+            .collect())
+    }
+}
+
+export!(Provider);
+
+#[cfg(test)]
+mod tests {
+    use super::{Guest, Provider};
+
+    #[test]
+    fn the_sample_returns_one_three_dimensional_vector_per_input() {
+        assert_eq!(Provider::embed("sample".into(), 3, "{}".into(), vec!["hi".into()]).unwrap(), vec![vec![2.0, 0.0, 1.0]]);
+        assert!(Provider::embed("other".into(), 3, "{}".into(), vec![]).is_err());
+    }
+}

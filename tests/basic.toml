@@ -1,0 +1,12 @@
+[answers]
+module_name = "sample-provider"
+
+[expect]
+files = ["Cargo.toml", "src/lib.rs", "wit/memcastle-embedding.wit", "memcastle-embedding.toml", "README.md"]
+
+[expect.contains]
+"Cargo.toml" = ['name = "sample_provider"']
+"memcastle-embedding.toml" = ['id = "sample-provider"', 'contract = "0.1.0"', 'dimensions = [3]']
+
+[commands]
+rendered = ["cargo generate-lockfile", "cargo test --locked", "cargo build --locked --target wasm32-wasip2"]

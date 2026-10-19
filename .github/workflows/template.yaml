@@ -1,0 +1,25 @@
+name: Validate embedding-provider template
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+      - uses: Swatinem/rust-cache@v2
+      - uses: noirbizarre/git-tpl@main
+        with:
+          version: 0.14.3
+      - name: Render and test standalone and composed module layouts
+        run: |
+          set -euo pipefail
+          result="$(git tpl test --json)"
+          jq . <<< "$result"
+          jq -e '.summary.failed == 0' <<< "$result" >/dev/null

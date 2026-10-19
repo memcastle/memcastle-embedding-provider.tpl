@@ -1,0 +1,15 @@
+# {{ module_name }}
+
+{{ module_description }}.
+
+This starter advertises the `sample` model with three dimensions and returns deterministic demonstration vectors.
+Replace the implementation and manifest model list together before releasing a real provider.
+
+```sh
+cargo generate-lockfile
+cargo test --locked
+cargo build --locked --release --target wasm32-wasip2
+cp target/wasm32-wasip2/release/{{ crate_name }}.wasm embedding.wasm
+```
+
+No network or credential access is granted by this sample manifest.
