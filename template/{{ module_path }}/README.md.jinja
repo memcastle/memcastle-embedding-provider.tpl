@@ -4,12 +4,28 @@
 
 This starter advertises the `sample` model with three dimensions and returns deterministic demonstration vectors.
 Replace the implementation and manifest model list together before releasing a real provider.
+Requires Rust 1.100+ and the `wasm32-wasip3` target for the `memcastle:embedding@0.2.0` / WASI 0.3.0 contract.
 
 ```sh
 cargo generate-lockfile
 cargo test --locked
-cargo build --locked --release --target wasm32-wasip2
-cp target/wasm32-wasip2/release/{{ crate_name }}.wasm embedding.wasm
+cargo build --locked --release --target wasm32-wasip3
+cp target/wasm32-wasip3/release/{{ crate_name }}.wasm embedding.wasm
+wasm-tools validate --features cm-async,cm-async-stackful,cm-more-async-builtins embedding.wasm
+python3 tests/conformance.py
 ```
 
 No network or credential access is granted by this sample manifest.
+Commit the generated Cargo.lock for reproducible builds.
+Use wasm-tools 1.263.0 and migrated development Core from commit `828f0f6` or a descendant (Wasmtime 50.0.3).
+Stable 0.5.2 predates the migration even though development currently reports the same version.
+The parent's `>=0.5, <0.6` default is transitional; tighten it when a compatible stable Core release is available.
+The async WIT export uses stackful `sync: true` bindings, preserving a synchronous Rust implementation.
+WASI 0.3 support is experimental and does not enable `std::thread::spawn`.
+An external WASI SDK is only needed for builds that explicitly depend on it.
+
+The Python 3.11+ conformance helper packages the built module into a temporary plugin, starts an isolated daemon,
+and calls Core's embedding probe, which validates vector count, dimensions and finite coordinates.
+For an existing plugin archive, pass `--archive PATH --plugin-id ID --module-id {{ module_name }}`.
+Native tests check exact sample vectors and ordered batches; the HTTP probe returns metadata only.
+Adapt the helper's sample model/profile together with your real implementation before publication.

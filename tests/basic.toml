@@ -2,11 +2,11 @@
 module_name = "sample-provider"
 
 [expect]
-files = ["Cargo.toml", "src/lib.rs", "wit/memcastle-embedding.wit", "memcastle-embedding.toml", "README.md"]
+files = ["Cargo.toml", "src/lib.rs", "wit/memcastle-embedding.wit", "memcastle-embedding.toml", "README.md", "tests/conformance.py"]
 
 [expect.contains]
-"Cargo.toml" = ['name = "sample_provider"']
-"memcastle-embedding.toml" = ['id = "sample-provider"', 'contract = "0.1.0"', 'dimensions = [3]']
+"Cargo.toml" = ['name = "sample_provider"', 'rust-version = "1.100"', 'wit-bindgen = "0.63.0"']
+"memcastle-embedding.toml" = ['id = "sample-provider"', 'contract = "0.2.0"', 'dimensions = [3]']
 
 [commands]
-rendered = ["cargo generate-lockfile", "cargo test --locked", "cargo build --locked --target wasm32-wasip2"]
+rendered = ["python3 {{ env.TEMPLATE_ROOT }}/tests/scripts/check_component.py ."]

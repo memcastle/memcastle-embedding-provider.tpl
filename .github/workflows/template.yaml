@@ -10,16 +10,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.100.0
         with:
-          targets: wasm32-wasip2
+          targets: wasm32-wasip3
+          components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
+      - uses: jdx/mise-action@v5
+        with:
+          install: false
       - uses: noirbizarre/git-tpl@main
         with:
           version: 0.14.3
+      - uses: memcastle/memcastle@main
+        id: core
+        with:
+          version: development
       - name: Render and test standalone and composed module layouts
+        env:
+          TEMPLATE_ROOT: ${{ github.workspace }}
         run: |
           set -euo pipefail
-          result="$(git tpl test --json)"
+          result="$(mise exec cargo:wasm-tools@1.263.0 -- git tpl test --json)"
           jq . <<< "$result"
           jq -e '.summary.failed == 0' <<< "$result" >/dev/null
+          echo 'Tested Core ${{ steps.core.outputs.core_sha }}' >> "$GITHUB_STEP_SUMMARY"
