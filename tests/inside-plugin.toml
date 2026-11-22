@@ -6,4 +6,7 @@ module_path = "embeddings/vector-one"
 files = ["embeddings/vector-one/Cargo.toml", "embeddings/vector-one/src/lib.rs", "embeddings/vector-one/wit/memcastle-embedding.wit", "embeddings/vector-one/memcastle-embedding.toml"]
 
 [expect.contains]
-"embeddings/vector-one/memcastle-embedding.toml" = ['id = "vector-one"']
+"embeddings/vector-one/memcastle-embedding.toml" = ['id = "vector-one"', 'contract = "0.2.0"']
+
+[commands]
+rendered = ["python3 {{ env.TEMPLATE_ROOT }}/tests/scripts/check_component.py embeddings/vector-one"]

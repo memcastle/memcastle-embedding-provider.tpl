@@ -1,6 +1,7 @@
 //! Replace the deterministic example with real model inference before publication.
 
-wit_bindgen::generate!({ path: "wit", world: "embedding-provider" });
+// Stackful bindings preserve ordinary Rust code behind the async-typed embedding export.
+wit_bindgen::generate!({ path: "wit", world: "embedding-provider", sync: true });
 
 use exports::memcastle::embedding::provider::{Guest, Model};
 
@@ -39,7 +40,34 @@ mod tests {
 
     #[test]
     fn the_sample_returns_one_three_dimensional_vector_per_input() {
-        assert_eq!(Provider::embed("sample".into(), 3, "{}".into(), vec!["hi".into()]).unwrap(), vec![vec![2.0, 0.0, 1.0]]);
+        assert_eq!(
+            Provider::embed(
+                "sample".into(),
+                3,
+                "{}".into(),
+                vec!["hi".into(), "longer".into()],
+            )
+            .unwrap(),
+            vec![vec![2.0, 0.0, 1.0], vec![6.0, 0.0, 1.0]]
+        );
+        let models = Provider::models();
+        assert_eq!(models.len(), 1);
+        assert_eq!(models[0].id, "sample");
+        assert_eq!(models[0].dimensions, vec![3]);
+    }
+
+    #[test]
+    fn an_empty_batch_returns_no_vectors() {
+        assert!(
+            Provider::embed("sample".into(), 3, "{}".into(), vec![])
+                .unwrap()
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn unsupported_models_and_dimensions_are_rejected() {
         assert!(Provider::embed("other".into(), 3, "{}".into(), vec![]).is_err());
+        assert!(Provider::embed("sample".into(), 4, "{}".into(), vec![]).is_err());
     }
 }
